@@ -99,7 +99,7 @@
 
   <script>
     // --- CONFIGURE YOUR URL HERE ---
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTSI8edGh-riqutqrOci9d66hKos8a7kcB7VDw6FsUhZw91C4IvHOlKvR47Vr_DHqK/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGKQDC1O254tEszPknJTHZuc6XCj4cXv-zODYZOhc7ruUarOvom3DskNZLpPO6302D/exec";
     
     const urlParams = new URLSearchParams(window.location.search);
     const urlToken = urlParams.get('token'); 
@@ -115,13 +115,22 @@
     let currentAudio = null;
     let playingTaskId = null;
 
-    function apiCall(payload) {
-      return fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json());
+function apiCall(payload) {
+  return fetch(SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow', // Crucial: Apps Script redirects the request to a different Google server
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8' // MUST be text/plain to avoid CORS errors
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
+    return response.json();
+  });
+}
 // Fetch Quote in the background (No button locking, no waiting)
     window.onload = function() {
         apiCall({ action: 'getQuote' })
